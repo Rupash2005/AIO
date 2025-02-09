@@ -136,6 +136,9 @@ export async function getDebridioStreams(
   const addonErrors: string[] = [];
 
   const streamPromises = servicesToUse.map(async (service) => {
+    console.log(
+      `|INF| wrappers > debridio: Getting Debridio streams for ${service.name}`
+    );
     const debridioConfigString = getDebridioConfigString(
       service.id,
       service.credentials.apiKey

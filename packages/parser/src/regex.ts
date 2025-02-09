@@ -3,10 +3,17 @@ const createRegex = (pattern: string): RegExp =>
 
 export const PARSE_REGEX = {
   resolutions: {
-    '2160p': createRegex('4k|2160p|u(ltra)?hd'),
-    '1080p': createRegex('1080p|f(ull)?hd'),
-    '720p': createRegex('720p|hd'),
-    '480p': createRegex('480p|sd'),
+    '2160p': createRegex(
+      '(bd|hd|m)?(4k|2160(p|i)?)|u(ltra)?[ .\\-_]?hd|3840\s?x\s?(\d{4})'
+    ),
+    '1440p': createRegex(
+      '(bd|hd|m)?(1440(p|i)?)|2k|w?q(uad)?[ .\\-_]?hd|2560\s?x(\d{4})'
+    ),
+    '1080p': createRegex(
+      '(bd|hd|m)?(1080(p|i)?)|f(ull)?[ .\\-_]?hd|1920\s?x\s?(\d{3,4})'
+    ),
+    '720p': createRegex('(bd|hd|m)?(720(p|i)?)|hd|1280\s?x\s?(\d{3,4})'),
+    '480p': createRegex('(bd|hd|m)?(480(p|i)?)|sd'),
   },
   qualities: {
     'BluRay REMUX': createRegex('(blu[ .\\-_]?ray|bd|br|b|uhd)[ .\\-_]?remux'),
@@ -49,10 +56,10 @@ export const PARSE_REGEX = {
     DTS: createRegex('dts(?![ .\\-_]?hd[ .\\-_]?ma|[ .\\-_]?hd)'),
     TrueHD: createRegex('true[ .\\-_]?hd'),
     5.1: createRegex(
-      'd(olby)?[ .\\-_]?d(igital)?[ .\\-_]?(p(lus)?|\\+)?[ .\\-_]?5[ .\\-_]?1(ch)?'
+      '(d(olby)?[ .\\-_]?d(igital)?[ .\\-_]?(p(lus)?|\\+)?)?5[ .\\-_]?1(ch)?'
     ),
     7.1: createRegex(
-      'd(olby)?[ .\\-_]?d(igital)?[ .\\-_]?(p(lus)?|\\+)?[ .\\-_]?7[ .\\-_]?1'
+      '(d(olby)?[ .\\-_]?d(igital)?[ .\\-_]?(p(lus)?|\\+)?)?7[ .\\-_]?1(ch)?'
     ),
     AAC: createRegex('q?aac(?:[ .\\-_]?2)?'),
     FLAC: createRegex('flac(?:[ .\\-_]?(lossless|2\\.0|x[2-4]))?'),

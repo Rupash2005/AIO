@@ -90,7 +90,9 @@ export async function getTorrentioStreams(
 
   if (torrentioOptions.useMultipleInstances === 'true') {
     const promises = usableServices.map(async (service) => {
-      console.log('Creating Torrentio instance with service:', service.id);
+      console.log(
+        `|INF| wrappers > torrentio: Getting Torrentio streams for ${service.name}`
+      );
       let configString = getServicePair(service.id, service.credentials);
       const torrentio = new Torrentio(
         configString,

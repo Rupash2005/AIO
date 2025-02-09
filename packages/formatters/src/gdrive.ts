@@ -65,10 +65,11 @@ export function gdriveFormat(
     description +=
       (stream.torrent?.seeders !== undefined && !minimalistic) ||
       (minimalistic && stream.torrent?.seeders && !stream.provider?.cached)
-        ? `👥 ${stream.torrent.seeders}`
+        ? `👥 ${stream.torrent.seeders} `
         : '';
 
-    description += stream.usenet?.age ? `📅 ${stream.usenet.age}` : '';
+    description += stream.usenet?.age ? `📅 ${stream.usenet.age} ` : '';
+    description += stream.indexers ? `🔍 ${stream.indexers}` : '';
     description += '\n';
   }
 

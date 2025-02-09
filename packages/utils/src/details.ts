@@ -146,6 +146,8 @@ export const addonDetails: AddonDetail[] = [
           { value: 'torbox', label: 'Torbox' },
           { value: 'offcloud', label: 'Offcloud' },
           { value: 'easydebrid', label: 'EasyDebrid' },
+          { value: 'pikpak', label: 'PikPak' },
+          { value: 'seedr', label: 'Seedr' },
         ],
       },
       {
@@ -178,6 +180,14 @@ export const addonDetails: AddonDetail[] = [
         },
       },
       {
+        id: 'liveSearchStreams',
+        required: false,
+        label: 'Live Search Streams',
+        description:
+          'Enable this option to show live search streams. By default, the addon will show only cached streams. Enable this option to show live search streams as well.',
+        type: 'checkbox',
+      },
+      {
         id: 'filterCertificationLevels',
         required: false,
         label: 'Filter Certification Levels',
@@ -207,6 +217,75 @@ export const addonDetails: AddonDetail[] = [
           { value: 'Moderate', label: 'Moderate' },
           { value: 'Severe', label: 'Severe' },
         ],
+      },
+    ],
+  },
+  {
+    name: 'Stremio-Jackett',
+    id: 'stremio-jackett',
+    requiresService: false,
+    supportedServices: ['realdebrid', 'alldebrid', 'premiumize', 'torbox'],
+    options: [
+      {
+        id: 'prioritiseDebrid',
+        required: false,
+        label: 'Prioritise Debrid Service',
+        description:
+          'Prioritise a specific debrid service when fetching streams. This option is useful when you want to use a specific debrid service for fetching streams. By default, the addon will make a separate request for each debrid service. I highly recommend provding a value for this option as it will speed up the fetching process and remove redundant results.',
+        type: 'select',
+        options: [
+          { value: 'realdebrid', label: 'Real Debrid' },
+          { value: 'alldebrid', label: 'All Debrid' },
+          { value: 'premiumize', label: 'Premiumize' },
+          { value: 'torbox', label: 'Torbox' },
+        ],
+      },
+      {
+        id: 'torrenting',
+        required: false,
+        label: 'Show Torrents',
+        description:
+          'If you have not provided any debrid services, this option does not apply to you, it will show torrent streams regardless.\
+          Show torrents along with debrid streams. By default, the addon will only show debrid streams. Enable this option to show torrents as well.',
+        type: 'checkbox',
+      },
+      {
+        id: 'tmdbApiKey',
+        secret: true,
+        required: false,
+        label: 'TMDB API Key',
+        description:
+          'Stremio-Jackett will use Cinemeta by default. Optionally provide a TMDB API key to fetch metadata from TMDB instead. You can get a free API key from https://www.themoviedb.org/settings/api',
+        type: 'text',
+      },
+      {
+        id: 'overrideName',
+        required: false,
+        label: 'Override Addon Name',
+        description:
+          'Override the name of the Stremio Jackett addon that shows up in the results',
+        type: 'text',
+      },
+      {
+        id: 'overrideUrl',
+        secret: true,
+        required: false,
+        label: 'Override URL',
+        description:
+          'Override the URL used to fetch streams from the Stremio Jackett addon. This option is incompatible with the prioritiseDebrid option. By default, the URL is generated based on the selected services and their credentials. Use this option to override the URL with a custom URL.',
+        type: 'text',
+      },
+      {
+        id: 'indexerTimeout',
+        required: false,
+        label: 'Override Indexer Timeout',
+        description:
+          'The timeout for fetching streams from the Stremio Jackett addon. This is the time in milliseconds that the addon will wait for a response before timing out. Leave it empty to use the recommended timeout.',
+        type: 'number',
+        constraints: {
+          min: Settings.MIN_TIMEOUT,
+          max: Settings.MAX_TIMEOUT,
+        },
       },
     ],
   },

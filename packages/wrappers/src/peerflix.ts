@@ -96,7 +96,7 @@ export async function getPeerflixStreams(
     let retrievedP2PStreams = false;
     const promises = usableServices.map(async (service) => {
       console.log(
-        `|DBG| wrappers > peerflix: Creating Peerflix instance with service: ${service.id}`
+        `|DBG| wrappers > peerflix: Getting Peerflix streams for ${service.name}`
       );
       let configPairs = [getServicePair(service.id, service.credentials)];
       if (peerflixOptions.showP2PStreams === 'true' && !retrievedP2PStreams) {

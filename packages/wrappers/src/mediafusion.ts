@@ -1,7 +1,12 @@
 import { AddonDetail, ParseResult, StreamRequest } from '@aiostreams/types';
 import { ParsedStream, Stream, Config } from '@aiostreams/types';
 import { BaseWrapper } from './base';
-import { addonDetails, Settings } from '@aiostreams/utils';
+import {
+  addonDetails,
+  getTextHash,
+  getTimeTakenSincePoint,
+  Settings,
+} from '@aiostreams/utils';
 
 export class MediaFusion extends BaseWrapper {
   constructor(
@@ -45,6 +50,7 @@ export async function getMediafusionStreams(
     overrideName?: string;
     filterCertificationLevels?: string;
     filterNudity?: string;
+    liveSearchStreams?: string;
   },
   streamRequest: StreamRequest,
   addonId: string
@@ -59,6 +65,39 @@ export async function getMediafusionStreams(
   const indexerTimeout = mediafusionOptions.indexerTimeout
     ? parseInt(mediafusionOptions.indexerTimeout)
     : undefined;
+  const liveSearchStreams =
+    mediafusionOptions.liveSearchStreams === 'true' ? true : false;
+  const cache = config.instanceCache;
+
+  const getConfigString = async (data: any): Promise<string> => {
+    const startTime = Date.now();
+    const cacheKey = getTextHash(`mediafusionConfig:${JSON.stringify(data)}`);
+    const cachedConfig = cache ? cache.get(cacheKey) : null;
+    if (cachedConfig) {
+      console.log(
+        `|DBG| wrappers > mediafusion: Returning cached config string`
+      );
+      return cachedConfig;
+    }
+    try {
+      const encryptedStr = await _getConfigString(data);
+
+      console.log(
+        `|INF| wrappers > mediafusion: Config encryption took ${getTimeTakenSincePoint(startTime)}`
+      );
+      cache?.set(cacheKey, encryptedStr, Settings.CACHE_MEDIAFUSION_CONFIG_TTL);
+      return encryptedStr;
+    } catch (error: any) {
+      if (error.name === 'TimeoutError') {
+        throw new Error(
+          `Config encryption timed out after ${getTimeTakenSincePoint(
+            startTime
+          )}`
+        );
+      }
+      throw new Error(`Failed to get config string: ${error.message}`);
+    }
+  };
 
   // If overrideUrl is provided, use it to get streams and skip all other steps
   if (mediafusionOptions.overrideUrl) {
@@ -83,7 +122,8 @@ export async function getMediafusionStreams(
     const configString = await getConfigString(
       getMediaFusionConfig(
         mediafusionOptions.filterCertificationLevels,
-        mediafusionOptions.filterNudity
+        mediafusionOptions.filterNudity,
+        liveSearchStreams
       )
     );
     const mediafusion = new MediaFusion(
@@ -127,6 +167,7 @@ export async function getMediafusionStreams(
     const mediafusionConfig = getMediaFusionConfig(
       mediafusionOptions.filterCertificationLevels,
       mediafusionOptions.filterNudity,
+      liveSearchStreams,
       debridService.id,
       debridService.credentials
     );
@@ -153,10 +194,25 @@ export async function getMediafusionStreams(
     const mediafusionConfig = getMediaFusionConfig(
       mediafusionOptions.filterCertificationLevels,
       mediafusionOptions.filterNudity,
+      liveSearchStreams,
       service.id,
       service.credentials
     );
-    const encryptedStr = await getConfigString(mediafusionConfig);
+    console.log(
+      `|INF| wrappers > mediafusion: Getting MediaFusion streams for service: ${service.id}`
+    );
+    let encryptedStr: string = '';
+    try {
+      encryptedStr = await getConfigString(mediafusionConfig);
+      if (!encryptedStr) {
+        throw new Error(
+          'An unknown error occurred while getting config string'
+        );
+      }
+    } catch (error: any) {
+      console.error(`|ERR| wrappers > mediafusion: ${error.message}`);
+      throw new Error(error.message);
+    }
     const mediafusion = new MediaFusion(
       encryptedStr,
       null,
@@ -187,6 +243,7 @@ export async function getMediafusionStreams(
 const getMediaFusionConfig = (
   filterCertificationLevels?: string,
   filterNudity?: string,
+  liveSearchStreams: boolean = false,
   service?: string,
   credentials: { [key: string]: string } = {}
 ): any => {
@@ -200,9 +257,6 @@ const getMediaFusionConfig = (
     const levels = filterNudity.split(',');
     nudityFilter = levels.map((level) => level.trim());
   }
-  console.debug(
-    `|DBG| wrappers > mediafusion: Determined nudity filter: ${nudityFilter} and certification filter: ${certificationFilter}`
-  );
   return {
     streaming_provider: service
       ? {
@@ -287,13 +341,13 @@ const getMediaFusionConfig = (
     api_password: Settings.MEDIAFUSION_API_PASSWORD || null,
     mediaflow_config: null,
     rpdb_config: null,
-    live_search_streams: false,
+    live_search_streams: liveSearchStreams,
     contribution_streams: false,
     mdblist_config: null,
   };
 };
 
-async function getConfigString(data: any): Promise<string> {
+async function _getConfigString(data: any): Promise<string> {
   const encryptUrl = `${Settings.MEDIAFUSION_URL}encrypt-user-data`;
   const response = await fetch(encryptUrl, {
     method: 'POST',
@@ -301,6 +355,11 @@ async function getConfigString(data: any): Promise<string> {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
+    signal: AbortSignal.timeout(
+      Settings.MEDIAFUSION_CONFIG_TIMEOUT ||
+        Settings.DEFAULT_MEDIAFUSION_TIMEOUT ||
+        Settings.DEFAULT_TIMEOUT
+    ),
   });
 
   const encryptedData = await response.json();

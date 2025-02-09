@@ -156,6 +156,9 @@ export async function getJackettioStreams(
   }
 
   const streamPromises = servicesToUse.map(async (service) => {
+    console.log(
+      `|INF| wrappers > jackettio: Getting Jackettio streams for ${service.name}`
+    );
     const configString = getJackettioConfigString(
       service.id,
       service.credentials.apiKey

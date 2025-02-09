@@ -1,3 +1,6 @@
+> [!NOTE]
+> This table may be outdated, please look at [settings.ts](https://github.com/Viren070/AIOStreams/blob/main/packages/utils/src/settings.ts) for the full list of environment variables you can set.
+
 | Environment Variable               | Default Value                                          | Description                                                                                 |
 |------------------------------------|------------------------------------------------------|---------------------------------------------------------------------------------------------|
 | `ADDON_NAME`                       | `AIOStreams`                                         | The name of the addon.                                                                      |

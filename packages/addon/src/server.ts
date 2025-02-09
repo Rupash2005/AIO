@@ -288,6 +288,15 @@ app.post('/encrypt-user-data', (req, res) => {
   }
 });
 
+app.get('/get-addon-config', (req, res) => {
+  res.status(200).json({
+    success: true,
+    maxMovieSize: Settings.MAX_MOVIE_SIZE,
+    maxEpisodeSize: Settings.MAX_EPISODE_SIZE,
+    torrentioDisabled: Settings.DISABLE_TORRENTIO,
+  });
+});
+
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });

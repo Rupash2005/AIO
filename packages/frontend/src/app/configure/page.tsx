@@ -112,6 +112,7 @@ const defaultSortCriteria: SortBy[] = [
 
 const defaultResolutions: Resolution[] = [
   { '2160p': true },
+  { '1440p': true },
   { '1080p': true },
   { '720p': true },
   { '480p': true },
@@ -195,10 +196,35 @@ export default function Configure() {
   const [manualManifestUrl, setManualManifestUrl] = useState<string | null>(
     null
   );
+  const [maxMovieSizeSlider, setMaxMovieSizeSlider] = useState<number>(
+    Settings.MAX_MOVIE_SIZE
+  );
+  const [maxEpisodeSizeSlider, setMaxEpisodeSizeSlider] = useState<number>(
+    Settings.MAX_EPISODE_SIZE
+  );
+  const [choosableAddons, setChoosableAddons] = useState<string[]>(
+    addonDetails.map((addon) => addon.id)
+  );
 
-  const getChoosableAddons = () => {
-    return addonDetails.map((addon) => addon.id);
-  };
+  useEffect(() => {
+    // get config from the server
+    fetch('/get-addon-config')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setMaxMovieSizeSlider(data.maxMovieSize);
+          setMaxEpisodeSizeSlider(data.maxEpisodeSize);
+          // filter out 'torrentio' from choosableAddons if torrentioDisabled is true
+          if (data.torrentioDisabled) {
+            setChoosableAddons(
+              addonDetails
+                .map((addon) => addon.id)
+                .filter((id) => id !== 'torrentio')
+            );
+          }
+        }
+      });
+  }, []);
 
   const createConfig = (): Config => {
     return {
@@ -937,7 +963,7 @@ export default function Configure() {
         <div className={styles.section}>
           <h2 style={{ padding: '5px' }}>Addons</h2>
           <AddonsList
-            choosableAddons={getChoosableAddons()}
+            choosableAddons={choosableAddons}
             addonDetails={addonDetails}
             addons={addons}
             setAddons={setAddons}
@@ -1106,7 +1132,7 @@ export default function Configure() {
             </div>
             <div className={styles.slidersContainer}>
               <Slider
-                maxValue={Settings.MAX_MOVIE_SIZE}
+                maxValue={maxMovieSizeSlider}
                 value={minMovieSize || 0}
                 setValue={setMinMovieSize}
                 defaultValue="min"
@@ -1116,9 +1142,9 @@ export default function Configure() {
                 Minimum movie size: {formatSize(minMovieSize || 0)}
               </div>
               <Slider
-                maxValue={Settings.MAX_MOVIE_SIZE}
+                maxValue={maxMovieSizeSlider}
                 value={
-                  maxMovieSize === null ? Settings.MAX_MOVIE_SIZE : maxMovieSize
+                  maxMovieSize === null ? maxMovieSizeSlider : maxMovieSize
                 }
                 setValue={setMaxMovieSize}
                 defaultValue="max"
@@ -1129,7 +1155,7 @@ export default function Configure() {
                 {maxMovieSize === null ? 'Unlimited' : formatSize(maxMovieSize)}
               </div>
               <Slider
-                maxValue={Settings.MAX_EPISODE_SIZE}
+                maxValue={maxEpisodeSizeSlider}
                 value={minEpisodeSize || 0}
                 setValue={setMinEpisodeSize}
                 defaultValue="min"
@@ -1139,10 +1165,10 @@ export default function Configure() {
                 Minimum episode size: {formatSize(minEpisodeSize || 0)}
               </div>
               <Slider
-                maxValue={Settings.MAX_EPISODE_SIZE}
+                maxValue={maxEpisodeSizeSlider}
                 value={
                   maxEpisodeSize === null
-                    ? Settings.MAX_EPISODE_SIZE
+                    ? maxEpisodeSizeSlider
                     : maxEpisodeSize
                 }
                 setValue={setMaxEpisodeSize}

@@ -192,9 +192,12 @@ export class BaseWrapper {
     } catch (error: any) {
       let message = error.message;
       if (error.name === 'TimeoutError') {
-        message = `The request to ${this.addonName} timed out after ${this.indexerTimeout}ms`;
+        message = `The stream request to ${this.addonName} timed out after ${this.indexerTimeout}ms`;
+        return Promise.reject(new Error(message));
       }
-      return Promise.reject(new Error(message));
+      console.error(`|ERR| wrappers > base > ${this.addonName}: ${message}`);
+      console.error(error);
+      return Promise.reject(error.message);
     }
   }
 
@@ -314,7 +317,6 @@ export class BaseWrapper {
       stream.size ||
       stream.sizebytes ||
       stream.sizeBytes ||
-      stream.torrentSize ||
       (description && this.extractSizeInBytes(description, 1024)) ||
       (stream.name && this.extractSizeInBytes(stream.name, 1024)) ||
       undefined;
