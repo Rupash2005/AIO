@@ -7,7 +7,11 @@ interface CredentialInputProps {
   inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
 }
 function isEncrypted(value: string): boolean {
-  return value.match(/^E-[0-9a-fA-F]{32}-[0-9a-fA-F]+$/) !== null;
+  if (!value) return false;
+  const tests =
+    /^E2-[^-]+-[^-]+$/.test(value) ||
+    /^E-[0-9a-fA-F]{32}-[0-9a-fA-F]+$/.test(value);
+  return tests;
 }
 
 const CredentialInput: React.FC<CredentialInputProps> = ({

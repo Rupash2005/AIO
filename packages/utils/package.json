@@ -1,10 +1,13 @@
 {
   "name": "@aiostreams/utils",
-  "version": "1.13.1",
+  "version": "1.13.7",
   "main": "./dist/index.js",
   "scripts": {
     "test": "vitest run --passWithNoTests",
     "build": "tsc"
   },
-  "description": "Library to parse a torrent filename "
+  "description": "Library to parse a torrent filename ",
+  "dependencies": {
+    "jsoncrush": "^1.1.8"
+  }
 }

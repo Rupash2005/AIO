@@ -182,9 +182,9 @@ export const addonDetails: AddonDetail[] = [
       {
         id: 'liveSearchStreams',
         required: false,
-        label: 'Live Search Streams',
+        label: 'Search streams on-demand',
         description:
-          'Enable this option to show live search streams. By default, the addon will show only cached streams. Enable this option to show live search streams as well.',
+          'Enable this option to live search movies & TV streams. By default, results will only be based on cached data. Enable this option to show live search streams as well.',
         type: 'checkbox',
       },
       {
@@ -921,3 +921,129 @@ export const serviceDetails = [
     ],
   },
 ];
+export const compressedConfigMap: Record<string, string> = {
+  streamTypes: 'a',
+  usenet: 'b',
+  debrid: 'c',
+  unknown: 'd',
+  p2p: 'e',
+  live: 'f',
+  resolutions: 'g',
+  '2160p': 'h',
+  '1440p': 'i',
+  '1080p': 'j',
+  '720p': 'k',
+  '480p': 'l',
+  Unknown: 'm',
+  qualities: 'n',
+  'BluRay REMUX': 'o',
+  BluRay: 'p',
+  'WEB-DL': 'q',
+  WEBRip: 'r',
+  HDRip: 's',
+  DVDRip: 't',
+  HDTV: 'u',
+  'HC HD-Rip': 'v',
+  CAM: 'x',
+  SCR: 'A',
+  visualTags: 'B',
+  'HDR+DV': 'C',
+  'HDR10+': 'D',
+  HDR10: 'F',
+  HDR: 'G',
+  '10bit': 'H',
+  IMAX: 'J',
+  audioTags: 'L',
+  Atmos: 'M',
+  'DD+': 'N',
+  'DTS-HD MA': 'P',
+  'DTS-HD': 'Q',
+  DTS: 'R',
+  TrueHD: 'S',
+  '5.1': 'T',
+  '7.1': 'U',
+  FLAC: 'V',
+  AAC: 'W',
+  encodes: 'X',
+  AV1: 'Y',
+  HEVC: 'Z',
+  AVC: 'E',
+  Xvid: 'I',
+  DivX: 'K',
+  'H-OU': 'O',
+  'H-SBS': 'aa',
+  sortBy: 'ab',
+  cached: 'ac',
+  direction: 'ad',
+  resolution: 'ae',
+  language: 'af',
+  size: 'ag',
+  streamType: 'ah',
+  visualTag: 'ai',
+  service: 'aj',
+  audioTag: '!',
+  encode: '@',
+  quality: '#',
+  seeders: '$',
+  addon: '%',
+  onlyShowCachedStreams: '^',
+  prioritisedLanguages: '&',
+  excludedLanguages: '*',
+  maxMovieSize: '(',
+  minMovieSize: ')',
+  maxEpisodeSize: '-',
+  minEpisodeSize: '=',
+  addonNameInDescription: '_',
+  cleanResults: '+',
+  maxResultsPerResolution: '{',
+  strictIncludeFilters: '}',
+  excludeFilters: '|',
+  formatter: '[',
+  mediaFlowConfig: ']',
+  mediaFlowEnabled: ';',
+  proxyUrl: ':',
+  apiPassword: '"',
+  publicIp: "'",
+  proxiedAddons: '<',
+  proxiedServices: '>',
+  addons: '?',
+  options: '/',
+  services: '.',
+  credentials: ',',
+  name: '~',
+  enabled: '`',
+  gdrive: '\\',
+  'minimalistic-gdrive': '..',
+  premiumize: '!!',
+  true: '@;',
+  false: '#;',
+  null: '00',
+  desc: 'dd',
+  asc: 'ak',
+  useMultipleInstances: '--',
+  prioritiseDebrid: '++',
+  indexerTimeout: 'tt',
+  overrideName: 'nn',
+  overrideUrl: 'uu',
+};
+
+// validate unique keys and values
+
+const compressedConfigMapValues = Object.values(compressedConfigMap);
+const compressedConfigMapKeys = Object.keys(compressedConfigMap);
+
+if (
+  new Set(compressedConfigMapValues).size !== compressedConfigMapValues.length
+) {
+  throw new Error(`found duplicate values in compressedConfigMap: Duplicate values were: ${compressedConfigMapValues.filter(
+    (value, index, self) => self.indexOf(value) !== index
+  )}
+  `);
+}
+
+if (new Set(compressedConfigMapKeys).size !== compressedConfigMapKeys.length) {
+  throw new Error(`found duplicate keys in compressedConfigMap: Duplicate keys were: ${compressedConfigMapKeys.filter(
+    (key, index, self) => self.indexOf(key) !== index
+  )}
+  `);
+}

@@ -119,6 +119,7 @@ export type SortBy = { [key: string]: boolean | string | undefined };
 export type StreamType = { [key: string]: boolean };
 
 export interface Config {
+  overrideName?: string;
   instanceCache?: any;
   requestingIp?: string;
   resolutions: Resolution[];

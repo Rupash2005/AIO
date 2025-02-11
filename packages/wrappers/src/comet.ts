@@ -29,12 +29,14 @@ export class Comet extends BaseWrapper {
   protected parseStream(stream: Stream): ParseResult {
     const parsedStream = super.parseStream(stream);
     if (stream.url && parsedStream.type === 'stream') {
+      parsedStream.result.filename = stream.description?.split('\n')[0];
       // force COMET_FORCE_HOSTNAME if provided
       if (Settings.FORCE_COMET_HOSTNAME) {
-        parsedStream.result.url = stream.url.replace(
-          new URL(stream.url).hostname,
-          Settings.FORCE_COMET_HOSTNAME
-        );
+        const url = new URL(stream.url);
+        url.hostname = Settings.FORCE_COMET_HOSTNAME;
+        url.port = Settings.FORCE_COMET_PORT;
+        url.protocol = Settings.FORCE_COMET_PROTOCOL;
+        parsedStream.result.url = url.toString();
       }
     }
     return parsedStream;

@@ -281,31 +281,23 @@ export class BaseWrapper {
       };
     }
     // attempt to look for filename in behaviorHints.filename
-    let filename =
-      stream?.behaviorHints?.filename || stream.torrentTitle || stream.filename;
+    let filename = stream?.behaviorHints?.filename || stream.filename;
 
     // if filename behaviorHint is not present, attempt to look for a filename in the stream description or title
     let description = stream.description || stream.title;
-
+    const episodeRegex =
+      /(?<![^ [_(\-.]])(?:s(?:eason)?[ .\-_]?(\d+)[ .\-_]?(?:e(?:pisode)?[ .\-_]?(\d+))?|(\d+)[xX](\d+))(?![^ \])_.-])/;
+    const yearRegex = /(?<![^ [_(\-.])(\d{4})(?=[ \])_.-]|$)/i;
     if (!filename && description) {
       const lines = description.split('\n');
       filename =
         lines.find(
-          (line: string) =>
-            line.match(
-              /(?<![^ [_(\-.]])(?:s(?:eason)?[ .\-_]?(\d+)[ .\-_]?(?:e(?:pisode)?[ .\-_]?(\d+))?|(\d+)[xX](\d+))(?![^ \])_.-])/
-            ) || line.match(/(?<![^ [_(\-.])(\d{4})(?=[ \])_.-]|$)/i)
+          (line: string) => line.match(episodeRegex) || line.match(yearRegex)
         ) || lines[0];
     }
 
     let stringToParse: string = filename || description || '';
-    if (
-      !(
-        filename.match(
-          /(?<![^ [_(\-.]])(?:s(?:eason)?[ .\-_]?(\d+)[ .\-_]?(?:e(?:pisode)?[ .\-_]?(\d+))?|(\d+)[xX](\d+))(?![^ \])_.-])/
-        ) || filename.match(/(?<![^ [_(\-.])(\d{4})(?=[ \])_.-]|$)/i)
-      )
-    ) {
+    if (!(filename.match(episodeRegex) || filename.match(yearRegex))) {
       stringToParse = description.replace(/\n/g, ' ').trim();
     }
     let parsedInfo: ParsedNameData = parseFilename(stringToParse);
@@ -552,6 +544,18 @@ export class BaseWrapper {
   }
 
   protected extractCountryCodes(string: string): string[] {
+    // only consider text after the movie/show title
+    const episodeRegex =
+      /(?<![^ [_(\-.]])(?:s(?:eason)?[ .\-_]?(\d+)[ .\-_]?(?:e(?:pisode)?[ .\-_]?(\d+))?|(\d+)x(\d+))(?![^ \])_.-])/i;
+    const yearRegex = /(?<![^ [_(\-.])(\d{4})(?=[ \])_.-]|$)/i;
+
+    const episodeMatch = string.match(episodeRegex);
+    const yearMatch = string.match(yearRegex);
+    if (episodeMatch && episodeMatch.index) {
+      string = string.slice(episodeMatch.index + episodeMatch[0].length);
+    } else if (yearMatch) {
+      string = string.slice(yearMatch.index! + yearMatch[0].length);
+    }
     const countryCodePattern = /\b(?!AC|DV)[A-Z]{2}\b/g;
     const matches = string.match(countryCodePattern);
     return matches ? [...new Set(matches)] : [];

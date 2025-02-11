@@ -1,5 +1,10 @@
 import { AddonDetail, Config } from '@aiostreams/types';
-import { addonDetails, serviceDetails, Settings } from '@aiostreams/utils';
+import {
+  addonDetails,
+  serviceDetails,
+  Settings,
+  unminifyConfig,
+} from '@aiostreams/utils';
 
 export const allowedFormatters = [
   'gdrive',
@@ -68,6 +73,7 @@ export function validateConfig(config: Config): {
   errorCode: string | null;
   errorMessage: string | null;
 } {
+  config = unminifyConfig(config);
   const createResponse = (
     valid: boolean,
     errorCode: string | null,

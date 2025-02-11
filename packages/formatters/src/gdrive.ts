@@ -69,7 +69,8 @@ export function gdriveFormat(
         : '';
 
     description += stream.usenet?.age ? `📅 ${stream.usenet.age} ` : '';
-    description += stream.indexers ? `🔍 ${stream.indexers}` : '';
+    description +=
+      stream.indexers && !minimalistic ? `🔍 ${stream.indexers}` : '';
     description += '\n';
   }
 

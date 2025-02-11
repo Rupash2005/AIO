@@ -50,7 +50,7 @@ export async function getTorrentioStreams(
   if (torrentioOptions.overrideUrl) {
     const torrentio = new Torrentio(
       null,
-      torrentioOptions.overrideUrl as string,
+      torrentioOptions.overrideUrl,
       torrentioOptions.overrideName,
       addonId,
       config,

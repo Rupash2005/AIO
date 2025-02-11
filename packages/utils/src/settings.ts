@@ -99,11 +99,17 @@ export class Settings {
   public static readonly COMET_URL =
     process.env.COMET_URL ?? 'https://comet.elfhosted.com/';
   public static readonly COMET_INDEXERS = process.env.COMET_INDEXERS
-    ? process.env.COMET_INDEXERS.split(',').map((indexer) => indexer.trim())
+    ? JSON.parse(process.env.COMET_INDEXERS)
     : ['dmm_public_hash_shares_only'];
   public static readonly FORCE_COMET_HOSTNAME = process.env.FORCE_COMET_HOSTNAME
     ? process.env.FORCE_COMET_HOSTNAME
     : 'comet.elfhosted.com';
+  public static readonly FORCE_COMET_PORT = process.env.FORCE_COMET_PORT
+    ? process.env.FORCE_COMET_PORT
+    : '';
+  public static readonly FORCE_COMET_PROTOCOL = process.env.FORCE_COMET_PROTOCOL
+    ? process.env.FORCE_COMET_PROTOCOL
+    : 'https';
   public static readonly DEFAULT_COMET_TIMEOUT = process.env
     .DEFAULT_COMET_TIMEOUT
     ? parseInt(process.env.DEFAULT_COMET_TIMEOUT)
