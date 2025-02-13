@@ -209,7 +209,8 @@ export function validateConfig(config: Config): {
           } else if (
             addon.options[option.id]?.match(
               /^E-[0-9a-fA-F]{32}-[0-9a-fA-F]+$/
-            ) === null
+            ) === null &&
+            addon.options[option.id]?.match(/^E2-[^-]+-[^-]+$/) === null
           ) {
             try {
               new URL(addon.options[option.id] as string);

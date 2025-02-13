@@ -1,6 +1,6 @@
 {
   "name": "@aiostreams/cloudflare-worker",
-  "version": "1.13.7",
+  "version": "1.13.8",
   "scripts": {
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",

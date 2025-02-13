@@ -378,7 +378,7 @@ function extractCustomConfig(config: string): Config | undefined {
     `|DBG| server > Found custom config for alias ${config}, attempting to extract config`
   );
   return extractEncryptedOrEncodedConfig(
-    customConfig,
+    decodeURIComponent(customConfig),
     `CustomConfig ${config}`
   );
 }

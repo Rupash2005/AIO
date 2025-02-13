@@ -1,6 +1,6 @@
 {
   "name": "aiostreams",
-  "version": "1.13.7",
+  "version": "1.13.8",
   "description": "Stremio addon to combine streams into one addon",
   "main": "dist/server.js",
   "scripts": {
