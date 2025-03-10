@@ -1,0 +1,69 @@
+services:
+  aiostreams:
+    image: ghcr.io/viren070/aiostreams:latest # ghcr.io/viren070/aiostreams:dev for latest commit
+    container_name: aiostreams
+    restart: unless-stopped
+    expose:
+      - 3000
+    env_file:
+      - .env
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.aio.rule=Host(`${DOMAIN?}`)'
+      - 'traefik.http.routers.aio.entrypoints=websecure'
+      - 'traefik.http.routers.aio.tls.certresolver=letsencrypt'
+    healthcheck:
+      test: wget -qO- http://localhost:3000/health
+      interval: 1m
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  traefik:
+    image: traefik:v3
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - 443:443
+    command:
+      - '--providers.docker=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--entryPoints.websecure.address=:443'
+      - '--certificatesresolvers.letsencrypt.acme.tlschallenge=true'
+      - '--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL?}'
+      - '--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json'
+      - '--log.level=INFO'
+      - '--ping'
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - './data/letsencrypt:/letsencrypt'
+    healthcheck:
+      test: ['CMD', 'traefik', 'healthcheck', '--ping']
+      interval: 1m
+      timeout: 5s
+      retries: 3
+
+  # Uncomment the following block to use warp as an ADDON_PROXY with http://warp:1080
+  # warp:
+  #   image: caomingjun/warp
+  #   container_name: warp
+  #   restart: unless-stopped
+  #   device_cgroup_rules:
+  #     - 'c 10:200 rwm'
+  #   expose:
+  #     - 1080
+  #   environment:
+  #     - WARP_SLEEP=5
+  #   cap_add:
+  #     - NET_ADMIN
+  #   sysctls:
+  #     - net.ipv6.conf.all.disable_ipv6=0
+  #     - net.ipv4.conf.all.src_valid_mark=1
+  #   volumes:
+  #     - ./data/warp:/var/lib/cloudflare-warp
+  #   healthcheck:
+  #     test: curl -x "socks5h://127.0.0.1:1080" -fsSL "https://www.cloudflare.com/cdn-cgi/trace" | grep -qE "warp=(plus|on)" || exit 1
+  #     interval: 1m
+  #     timeout: 5s
+  #     retries: 3
+  #     start_period: 5s

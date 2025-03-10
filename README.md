@@ -11,7 +11,6 @@
   - [Cloudflare Workers](#cloudflare-workers)
   - [ElfHosted](#elfhosted-paid)
   - [Heroku](#heroku-paid)
-  - [VPS](#vps)
   - [Docker](#docker)
   - [From Source](#from-source)
 - [Configuring](#configuring)
@@ -118,13 +117,12 @@ Read my [Stremio guide](https://guides.viren070.me/stremio).
 ### Public Instance
 
 > [!IMPORTANT]
-> Torrentio is disabled on the public instance! However, most users don't need Torrentio and MediaFusion also provides streams from Torrentio, so try the public instance first, you may not need to self-host. 
+> Torrentio is disabled on the public instance! However, most users don't need Torrentio and MediaFusion also provides streams from Torrentio, so try the public instance first, you may not need to self-host.
 
 [ElfHosted](https://elfhosted.com/) have been kind enough to host a [community instance of AIOStreams](https://aiostreams.elfhosted.com/configure).
 
 This community instance does have a ratelimit in place, but it is unlikely you will reach it. It also avoids the ratelimits of ElfHosted addons like Comet and MediaFusion as AIOStreams' requests to these addons are routed internally.
 However, other non-ElfHosted addons may rate limit the community instance.
-
 
 ### Cloudflare Workers
 
@@ -149,27 +147,25 @@ There are 2 methods to do this. Method 2 requires you to have Git and Node.js in
    - Choose your GitHub account, and the repository you created earlier when forking my repository
    - Leave the branch as main
    - Build command:
-        ```bash
-        npm install | npm run build
-        ```
+     ```bash
+     npm install | npm run build
+     ```
    - Deploy command:
-       ```bash
-       npm run deploy:cloudflare-worker
-       ```
+     ```bash
+     npm run deploy:cloudflare-worker
+     ```
 7. Click `Connect`
 8. Trigger a redeployment by editing the README file at your fork (you can just add a letter and click commit changes)
 9. You can find the URL for your cloudflare worker by clicking `View version` at the `Deployments` tab under the `Active deployments` section
 
-If you get an error about the `node:sqlite` module, follow [these instructions](https://github.com/Viren070/AIOStreams/issues/32#issuecomment-2602643959), editing the code at your forked GitHub repository. 
+If you get an error about the `node:sqlite` module, follow [these instructions](https://github.com/Viren070/AIOStreams/issues/32#issuecomment-2602643959), editing the code at your forked GitHub repository.
 
 **Method 2**
 
 1. Sign up for a [Cloudflare Account](https://dash.cloudflare.com/sign-up/workers-and-pages)
 2. Install Node.js (I would recommend using package managers e.g. fnm on Windows)
 3. Install Git
-5. Run the following commands:
-
-
+4. Run the following commands:
 
 ```bash
 git clone https://github.com/Viren070/AIOStreams.git
@@ -190,7 +186,7 @@ Go to your forked GitHub repository and click sync fork. This should trigger a d
 **Method 2**
 
 To update the addon, you can simply run the following commands to pull the latest changes, build the project, and deploy the worker.
-This will update the worker with the latest changes, which may not be stable. In case, you get the build error about `node:sqlite` again, follow the instructions linked above again. 
+This will update the worker with the latest changes, which may not be stable. In case, you get the build error about `node:sqlite` again, follow the instructions linked above again.
 
 ```
 git pull --rebase
@@ -200,52 +196,103 @@ npm run deploy:cloudflare-worker
 
 ### ElfHosted (paid)
 
-> [!NOTE] 
-> Use the link below to support me, 33% of your AIOStreams subscription will go to me ❤️ 
+> [!NOTE]
+> Use the link below to support me, 33% of your AIOStreams subscription will go to me ❤️
 
-AIOStreams is available as a [paid product on ElfHosted](https://store.elfhosted.com/product/aiostreams/elf/viren070/). This offers you a no-hassle experience where you can expect things to "just work". 
+AIOStreams is available as a [paid product on ElfHosted](https://store.elfhosted.com/product/aiostreams/elf/viren070/). This offers you a no-hassle experience where you can expect things to "just work".
 
-### Heroku (paid) 
+### Heroku (paid)
 
 > [!TIP]
-> Heroku have a [student offer](https://www.heroku.com/github-students/) which gives you $13 worth of credit each month to spend for 24 months. 
+> Heroku have a [student offer](https://www.heroku.com/github-students/) which gives you $13 worth of credit each month to spend for 24 months.
 
-To deploy AIOStreams on [Heroku](https://heroku.com/), you can fork this repository, and create a new app on the [Heroku Dashboard](https://dashboard.heroku.com/), using `GitHub` as the deployment method in the `Deploy` tab, and choosing the `Node.js` buildpack in the `Settings` tab. 
-
-### VPS
-
-A VPS (Virtual Private Server) can be used to host many applications, not just AIOStreams. 
-
-You can use the Free tier on [Oracle](https://www.oracle.com/cloud/free/). You can also look at the following posts for some cheap providers: 
-
-- https://lowendbox.com/blog/1-vps-1-usd-vps-per-month/
-- https://lowendbox.com/blog/2-usd-vps-cheap-vps-under-2-month/
-
-You need a domain, and you can set AIOStreams up on your VPS by installing Docker and then using a [docker compose file](#docker-compose). 
+To deploy AIOStreams on [Heroku](https://heroku.com/), you can fork this repository, and create a new app on the [Heroku Dashboard](https://dashboard.heroku.com/), using `GitHub` as the deployment method in the `Deploy` tab, and choosing the `Node.js` buildpack in the `Settings` tab.
 
 ### Docker
 
 [Docker](https://docs.docker.com/get-docker/) is a quick and convenient way to run this. Official images are available at the [ghcr.io](https://github.com/Viren070/AIOStreams/pkgs/container/aiostreams) and [docker.io](https://hub.docker.com/r/viren070/aiostreams) registries
 
+Rather than running this on a personal device, you can follow these instructions to run it on a server or VPS.
+You can use a free VPS from Oracle for this, or some cheap ones found on [LowEndBox](https://lowendbox.com/).
+
+#### Docker Compose
+
+1. Download the `compose.yaml` and `.env.sample` files:
+
+   ```bash
+   curl -O https://raw.githubusercontent.com/Viren070/AIOStreams/main/compose.yaml
+   curl -O https://raw.githubusercontent.com/Viren070/AIOStreams/main/.env.sample -o .env
+   ```
+
+2. Edit the `.env` file to your liking.
+
+3. Run the following command:
+
+   ```bash
+   docker compose up -d
+   ```
+
+#### Traefik
+
+For an easy way to get HTTPS (which is required to install Stremio addons outside of localhost), you can use Traefik as a reverse proxy.
+
+**Requirements**:
+
+- A domain/subdomain with a CNAME/A record pointing to the public IP of the server
+- A server with ports 443 open
+
+> [!TIP]
+> You can use free domains from DuckDNS and Afraid
+
+1. Use the `compose.traefik.yaml` file instead of the `compose.yaml` file.
+
+   ```bash
+   curl -O https://raw.githubusercontent.com/Viren070/AIOStreams/main/compose.traefik.yaml -o compose.yaml
+   ```
+
+   If you haven't already downloaded the `.env` file, do so now:
+
+   ```bash
+    curl -O https://raw.githubusercontent.com/Viren070/AIOStreams/main/.env.sample -o .env
+   ```
+
+2. Ensure that the 'TRAEFIK CONFIGURATION' section in the `.env` file is filled in.
+
+3. Then run the following command:
+
+   ```bash
+   docker compose up -d
+   ```
+
+#### Compose with other addons
+
+If you have other self-hosted addons, you'd like AIOStreams to use, fill them in in the `.env` file.
+
+If you are looking for a more complete `compose.yaml` with more addons, you can use my template [here](https://github.com/Viren070/stremio-addons-docker-compose-template).
+
+#### Docker CLI
+
 You can use the prebuilt images using one of the following commands:
 
 **GitHub Container Registry**:
+
 ```
 docker run -p 8080:3000 ghcr.io/viren070/aiostreams:latest
 ```
+
 **Docker Hub**:
+
 ```
 docker run -p 8080:3000 viren070/aiostreams:latest
 ```
 
-If you would like to pass one of the [environment variables](CONFIGURING.md), you can provide the -e flag, e.g. to provide a SECRET_KEY (recommended, see [CONFIGURING.md](CONFIGURING.md) for how to generate a secret key.): 
+If you would like to pass one of the [environment variables](CONFIGURING.md), you can provide the -e flag, e.g. to provide a SECRET_KEY (recommended, see [CONFIGURING.md](CONFIGURING.md) for how to generate a secret key.):
 
 ```
 docker run -p 8080:3000 -e SECRET_KEY=... viren070/aiostreams:latest
 ```
 
-
-If you don't want to use a prebuilt image, or want to build from a commit that isn't tagged with a version yet, you can build the image yourself using the following commands: 
+If you don't want to use a prebuilt image, or want to build from a commit that isn't tagged with a version yet, you can build the image yourself using the following commands:
 
 ```
 git clone https://github.com/Viren070/aiostreams.git
@@ -254,15 +301,9 @@ docker build -t aiostreams .
 docker run -p 8080:3000 aiostreams
 ```
 
-#### Docker Compose 
-
-Have a look at this post which contains a docker compose file with MediaFlow Proxy, and AIOStreams configured with Warp (to get around Torrentio blocks on some VPSs):
- 
-- https://www.reddit.com/r/StremioAddons/comments/1icdnos/thinking_of_selfhosting_aiostreams_dont_bother/
-
 ### Other
 
-This addon can be deployed using some free solutions, but these should not be considered permanent solutions and can stop working at any point. 
+This addon can be deployed using some free solutions, but these should not be considered permanent solutions and can stop working at any point.
 
 - [Hugging Face](https://huggingface.co)
 - [Koyeb](https://koyeb.com/)
@@ -293,11 +334,11 @@ You need Node.js and git installed. Node v22 and npm v10.9 were used in the deve
    ```
 5. Go to `http://localhost:3000/configure`
 
-You can change the PORT environment variable to change the port that the addon will listen on.
+You can change the `PORT` environment variable to change the port that the addon will listen on.
 
 ## Configuring
 
-If you would like an explanation on the configuration options at the /configure page, have a look at this [guide for aiostreams](https://guides.viren070.me/stremio/addons/aiostreams) that I made. 
+If you would like an explanation on the configuration options at the /configure page, have a look at this [guide for aiostreams](https://guides.viren070.me/stremio/addons/aiostreams) that I made.
 
 Outside of the configuration page, the behaviour of this addon can also be changed with environment variables.  
 Most users don't need to set any environment variables. However, if you do, the SECRET_KEY is the one you might want to configure. This key enables encrypted manifest URLs, which help protect your API keys.
@@ -306,7 +347,7 @@ With encryption, someone who has your manifest URL can't directly see your API k
 
 ### Environment Variables
 
-Please see [CONFIGURING](CONFIGURING.md) for all the environment variables you can set. 
+Please see [CONFIGURING](CONFIGURING.md) and the [sample .env file](.env.sample) for a list of environment variables that can be set.
 
 Below, you can find how to set environment variables for the different methods of deployment.
 
@@ -373,13 +414,13 @@ To deploy your cloudflare worker, run the following command:
 npm run deploy:cloudflare-worker
 ```
 
-## Disclaimer 
+## Disclaimer
 
 AIOStreams and its developer do not host, store, or distribute any content that is found using this addon. All content is sourced from publicly available addons. AIOStreams does not endorse or promote piracy in any form. It is the user's responsibility to ensure that their use of this addon is in compliance with their local laws and regulations.
 
 ## Credits
 
 - Thanks to [sleeyax/stremio-easynews-addon](https://github.com/Sleeyax/stremio-easynews-addon) for the repository structure and dockerfile.
-- Thanks to all addon devs for creating the upstream addons that AIOStreams scrapes. 
+- Thanks to all addon devs for creating the upstream addons that AIOStreams scrapes.
 - [MediaFlow](https://github.com/Mhdzumair/mediaflow-proxy) for MediaFlow Proxy which is used in this addon to proxy your streams
 - Issue templates were stolen from [5rahim/seanime](https://github.com/5rahim/seanime) (You should really try out this app)

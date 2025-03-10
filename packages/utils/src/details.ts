@@ -14,6 +14,7 @@ export const addonDetails: AddonDetail[] = [
       'torbox',
       'offcloud',
       'putio',
+      'easydebrid',
     ],
     options: [
       {
