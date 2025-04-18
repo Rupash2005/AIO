@@ -1,0 +1,14 @@
+{
+  "version": "independent",
+  "npmClient": "npm",
+  "packages": [
+    "packages/*"
+  ],
+  "command": {
+    "version": {
+      "conventionalCommits": true,
+      "createRelease": "github",
+      "message": "chore(release): publish new versions"
+    }
+  }
+}

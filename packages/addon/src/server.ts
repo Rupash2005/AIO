@@ -131,7 +131,15 @@ app.get('/:config/configure', (req, res) => {
   }
   try {
     let configJson = extractJsonConfig(config);
-    if (isValueEncrypted(config)) {
+    let configString = config;
+    if (CUSTOM_CONFIGS) {
+      const customConfig = extractCustomConfig(config);
+      if (customConfig) {
+        configJson = customConfig;
+        configString = decodeURIComponent(CUSTOM_CONFIGS[config]);
+      }
+    }
+    if (isValueEncrypted(configString)) {
       logger.info(`Encrypted config detected, encrypting credentials`);
       configJson = encryptInfoInConfig(configJson);
     }
