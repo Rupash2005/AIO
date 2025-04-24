@@ -93,7 +93,12 @@ app.use((req, res, next) => {
   const start = Date.now();
   res.on('finish', () => {
     logger.info(
-      `${req.method} ${req.path.replace(/\/ey[JI][\w\=]+/g, '/*******').replace(/\/(E2?|B)?-[\w-\%]+/g, '/*******')} - ${res.statusCode} - ${getTimeTakenSincePoint(start)}`
+      `${req.method} ${req.path
+        .replace(/\/ey[JI][\w\=]+/g, '/*******')
+        .replace(
+          /\/(E2?|B)?-[\w-\%]+/g,
+          '/*******'
+        )} - ${Settings.LOG_SENSITIVE_INFO ? getIp(req) : '<redactedIp>'} - ${res.statusCode} - ${getTimeTakenSincePoint(start)}`
     );
   });
   next();
@@ -245,11 +250,7 @@ app.get('/:config/stream/:type/:id.json', (req, res: Response): void => {
       );
       return;
     }
-    configJson.requestingIp =
-      req.get('X-Forwarded-For') ||
-      req.get('X-Real-IP') ||
-      req.get('CF-Connecting-IP') ||
-      req.ip;
+    configJson.requestingIp = getIp(req);
     configJson.instanceCache = cache;
     const aioStreams = new AIOStreams(configJson);
     aioStreams
@@ -367,6 +368,18 @@ app.listen(Settings.PORT, () => {
   logger.info(`Listening on port ${Settings.PORT}`);
 });
 
+function getIp(req: Request): string | undefined {
+  return (
+    req.get('X-Client-IP') ||
+    req.get('X-Forwarded-For')?.split(',')[0].trim() ||
+    req.get('X-Real-IP') ||
+    req.get('CF-Connecting-IP') ||
+    req.get('True-Client-IP') ||
+    req.get('X-Forwarded')?.split(',')[0].trim() ||
+    req.get('Forwarded-For')?.split(',')[0].trim() ||
+    req.ip
+  );
+}
 function extractJsonConfig(config: string): Config {
   if (
     config.startsWith('eyJ') ||

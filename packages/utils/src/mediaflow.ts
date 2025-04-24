@@ -9,7 +9,7 @@ const logger = createLogger('mediaflow');
 
 const PRIVATE_CIDR = /^(10\.|127\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/;
 
-export function createProxiedMediaFlowUrl(
+export async function createProxiedMediaFlowUrl(
   url: string,
   mediaFlowConfig: Config['mediaFlowConfig'],
   headers?: {
@@ -40,6 +40,16 @@ export function createProxiedMediaFlowUrl(
   };
   const requestHeaders = headers?.request || {};
 
+  if (Settings.ENCRYPT_MEDIAFLOW_URLS) {
+    const encryptedUrl = await encryptMediaFlowUrl(
+      url,
+      mediaFlowConfig,
+      responseHeaders,
+      requestHeaders
+    );
+    return encryptedUrl;
+  }
+
   if (requestHeaders) {
     Object.entries(requestHeaders).forEach(([key, value]) => {
       queryParams[`h_${key}`] = value;
@@ -58,6 +68,51 @@ export function createProxiedMediaFlowUrl(
   proxiedUrl.pathname = `${proxiedUrl.pathname === '/' ? '' : proxiedUrl.pathname}${proxyEndpoint}`;
   proxiedUrl.search = encodedParams;
   return proxiedUrl.toString();
+}
+
+async function encryptMediaFlowUrl(
+  url: string,
+  mediaFlowConfig: Config['mediaFlowConfig'],
+  responseHeaders: Record<string, string>,
+  requestHeaders: Record<string, string>
+) {
+  if (!mediaFlowConfig) {
+    throw new Error('MediaFlow configuration is missing');
+  }
+  const proxyUrl = new URL(mediaFlowConfig.proxyUrl.replace(/\/$/, ''));
+  const generateEncryptedUrlEndpoint = '/generate_encrypted_or_encoded_url';
+  proxyUrl.pathname = `${proxyUrl.pathname === '/' ? '' : proxyUrl.pathname}${generateEncryptedUrlEndpoint}`;
+
+  const data = {
+    mediaflow_proxy_url: mediaFlowConfig.proxyUrl.replace(/\/$/, ''),
+    endpoint: '/proxy/stream',
+    destination_url: url,
+    request_headers: requestHeaders,
+    response_headers: responseHeaders,
+    expiration: 3600 * 24, // URL will expire in 24 hours
+    api_password: mediaFlowConfig.apiPassword,
+  };
+
+  const response = await fetch(proxyUrl.toString(), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+    signal: AbortSignal.timeout(Settings.MEDIAFLOW_IP_TIMEOUT),
+  });
+  if (!response.ok) {
+    throw new Error(`${response.status}: ${response.statusText}`);
+  }
+  const responseData = await response.json();
+  if (responseData.error) {
+    throw new Error(responseData.error);
+  }
+  if (responseData.encoded_url) {
+    return responseData.encoded_url;
+  } else {
+    throw new Error('No encrypted or encoded URL returned');
+  }
 }
 
 export async function getMediaFlowPublicIp(

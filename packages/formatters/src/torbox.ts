@@ -24,19 +24,17 @@ export function torboxFormat(stream: ParsedStream): {
 
   let description: string = '';
 
-  description += `Quality: ${stream.quality}\nName: ${stream.filename}\nSize: ${formatSize(stream.size || 0)}\nLanguage: ${stream.languages.length > 0 ? stream.languages.join(', ') : 'Unknown'}`;
+  description += `Quality: ${stream.quality}\nName: ${stream.filename || 'Unknown'}\nSize: ${stream.size ? formatSize(stream.size) : 'Unknown'}${stream.indexers ? `| Source: ${stream.indexers}` : ''}\nLanguage: ${stream.languages.length > 0 ? stream.languages.join(', ') : 'Unknown'}`;
 
-  let streamType = stream.torrent
-    ? 'Torrent'
-    : stream.usenet
-      ? 'Usenet'
-      : stream.url
-        ? 'Direct'
-        : 'Unknown';
-  description += `\nType: ${streamType}`;
+  let streamType = '';
+  if (stream?.torrent?.seeders) {
+    streamType = 'Torrent';
+  } else if (stream?.usenet?.age) {
+    streamType = 'Usenet';
+  }
 
   if (streamType === 'Torrent' || streamType === 'Usenet') {
-    description += ` | ${streamType === 'Torrent' ? 'Seeders' : 'Age'}: ${streamType === 'Torrent' ? stream.torrent?.seeders : stream.usenet?.age}`;
+    description += `Type: ${streamType} | ${streamType === 'Torrent' ? 'Seeders' : 'Age'}: ${streamType === 'Torrent' ? stream.torrent?.seeders : stream.usenet?.age}`;
   }
 
   if (stream.message) {

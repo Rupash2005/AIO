@@ -79,7 +79,7 @@ export class Settings {
     : 161061273600; // 150GiB
   public static readonly MAX_EPISODE_SIZE = process.env.MAX_EPISODE_SIZE
     ? parseInt(process.env.MAX_EPISODE_SIZE)
-    : 16106127360; // 15GiB
+    : 161061273600; // 150GiB
   public static readonly MAX_TIMEOUT = process.env.MAX_TIMEOUT
     ? parseInt(process.env.MAX_TIMEOUT)
     : 50000;
@@ -100,6 +100,10 @@ export class Settings {
   public static readonly MEDIAFLOW_IP_TIMEOUT = process.env.MEDIAFLOW_IP_TIMEOUT
     ? parseInt(process.env.MEDIAFLOW_IP_TIMEOUT)
     : 30000;
+  public static readonly ENCRYPT_MEDIAFLOW_URLS = process.env
+    .ENCRYPT_MEDIAFLOW_URLS
+    ? process.env.ENCRYPT_MEDIAFLOW_URLS === 'true'
+    : false;
 
   // Comet settings
   public static readonly COMET_URL =
@@ -109,13 +113,13 @@ export class Settings {
     : ['dmm_public_hash_shares_only'];
   public static readonly FORCE_COMET_HOSTNAME = process.env.FORCE_COMET_HOSTNAME
     ? process.env.FORCE_COMET_HOSTNAME
-    : 'comet.elfhosted.com';
+    : null;
   public static readonly FORCE_COMET_PORT = process.env.FORCE_COMET_PORT
     ? process.env.FORCE_COMET_PORT
-    : '';
+    : null;
   public static readonly FORCE_COMET_PROTOCOL = process.env.FORCE_COMET_PROTOCOL
     ? process.env.FORCE_COMET_PROTOCOL
-    : 'https';
+    : null;
   public static readonly DEFAULT_COMET_TIMEOUT = process.env
     .DEFAULT_COMET_TIMEOUT
     ? parseInt(process.env.DEFAULT_COMET_TIMEOUT)
