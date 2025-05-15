@@ -300,7 +300,16 @@ export const addonDetails: AddonDetail[] = [
     name: 'Jackettio',
     id: 'jackettio',
     requiresService: true,
-    supportedServices: ['realdebrid', 'alldebrid', 'premiumize', 'debridlink'],
+    supportedServices: [
+      'torbox',
+      'easydebrid',
+      'realdebrid',
+      'debridlink',
+      'alldebrid',
+      'premiumize',
+      'offcloud',
+      'pikpak',
+    ],
     options: [
       {
         id: 'prioritiseDebrid',
@@ -310,10 +319,14 @@ export const addonDetails: AddonDetail[] = [
           'Prioritise a specific debrid service when fetching streams. This option is useful when you want to use a specific debrid service for fetching streams. By default, the addon will make a separate request for each debrid service. I highly recommend provding a value for this option as it will speed up the fetching process and remove redundant results.',
         type: 'select',
         options: [
+          { value: 'torbox', label: 'Torbox' },
+          { value: 'easydebrid', label: 'EasyDebrid' },
           { value: 'realdebrid', label: 'Real Debrid' },
+          { value: 'debridlink', label: 'Debrid Link' },
           { value: 'alldebrid', label: 'All Debrid' },
           { value: 'premiumize', label: 'Premiumize' },
-          { value: 'debridlink', label: 'Debrid Link' },
+          { value: 'offcloud', label: 'Offcloud' },
+          { value: 'pikpak', label: 'PikPak' },
         ],
       },
       {
@@ -348,7 +361,7 @@ export const addonDetails: AddonDetail[] = [
     ],
   },
   {
-    name: 'Torbox',
+    name: 'TorBox',
     id: 'torbox',
     requiresService: true,
     supportedServices: ['torbox'],
@@ -446,6 +459,51 @@ export const addonDetails: AddonDetail[] = [
           min: Settings.MIN_TIMEOUT,
           max: Settings.MAX_TIMEOUT,
         },
+      },
+    ],
+  },
+  {
+    name: 'Easynews++',
+    id: 'easynews-plus-plus',
+    requiresService: true,
+    supportedServices: ['easynews'],
+    options: [
+      {
+        id: 'overrideName',
+        required: false,
+        label: 'Override Addon Name',
+        description:
+          "Override the name of the addon that shows up in the results. Leave it empty to use the default name of 'Easynews++'.",
+        type: 'text',
+      },
+      {
+        id: 'overrideUrl',
+        secret: true,
+        required: false,
+        label: 'Override URL',
+        description:
+          'Override the URL used to fetch streams from the Easynews++ addon. By default, the URL is generated based on the username and password provided for the Easynews service. Use this option to override the URL with a custom URL.',
+        type: 'text',
+      },
+      {
+        id: 'indexerTimeout',
+        required: false,
+        label: 'Override Indexer Timeout',
+        description:
+          'The timeout for fetching streams from the Easynews++ addon in milliseconds. This is the time in milliseconds that the addon will wait for a response from Easynews Plus before timing out. Leave it empty to use the recommended timeout.',
+        type: 'number',
+        constraints: {
+          min: Settings.MIN_TIMEOUT,
+          max: Settings.MAX_TIMEOUT,
+        },
+      },
+      {
+        id: 'strictTitleMatching',
+        required: false,
+        label: 'Strict Title Matching',
+        description:
+          'Enable strict title matching for Easynews Next. This option will filter out results that do not match the title exactly.',
+        type: 'checkbox',
       },
     ],
   },
@@ -630,6 +688,61 @@ export const addonDetails: AddonDetail[] = [
     ],
   },
   {
+    name: 'StremThru Store',
+    id: 'stremthru-store',
+    requiresService: true,
+    supportedServices: [
+      'torbox',
+      'easydebrid',
+      'realdebrid',
+      'debridlink',
+      'alldebrid',
+      'premiumize',
+      'offcloud',
+      'pikpak',
+    ],
+    options: [
+      {
+        id: 'prioritiseDebrid',
+        required: false,
+        label: 'Prioritise Debrid Service',
+        description:
+          'Prioritise a specific debrid service when fetching streams. This option is useful when you want to use a specific debrid service for fetching streams. By default, the addon will make a separate request for each debrid service. I highly recommend provding a value for this option as it will speed up the fetching process and remove redundant results.',
+        type: 'select',
+        options: [
+          { value: 'torbox', label: 'Torbox' },
+          { value: 'easydebrid', label: 'EasyDebrid' },
+          { value: 'realdebrid', label: 'Real Debrid' },
+          { value: 'debridlink', label: 'Debrid Link' },
+          { value: 'alldebrid', label: 'All Debrid' },
+          { value: 'premiumize', label: 'Premiumize' },
+          { value: 'offcloud', label: 'Offcloud' },
+          { value: 'pikpak', label: 'PikPak' },
+        ],
+      },
+      {
+        id: 'overrideName',
+        required: false,
+        label: 'Override Addon Name',
+        description:
+          "Override the name of the addon that shows up in the results. Leave it empty to use the default name of 'StremThru Store'.",
+        type: 'text',
+      },
+      {
+        id: 'indexerTimeout',
+        required: false,
+        label: 'Override Indexer Timeout',
+        description:
+          'The timeout for fetching streams from the StremThru Store addon in milliseconds. This is the time in milliseconds that the addon will wait for a response from StremThru Store before timing out. Leave it empty to use the recommended timeout.',
+        type: 'number',
+        constraints: {
+          min: Settings.MIN_TIMEOUT,
+          max: Settings.MAX_TIMEOUT,
+        },
+      },
+    ],
+  },
+  {
     name: 'DMM Cast',
     id: 'dmm-cast',
     requiresService: false,
@@ -800,10 +913,10 @@ export const serviceDetails = [
     ],
   },
   {
-    name: 'Torbox',
+    name: 'TorBox',
     id: 'torbox',
     shortName: 'TB',
-    knownNames: ['TB', 'TRB', 'Torbox'],
+    knownNames: ['TB', 'TRB', 'TorBox'],
     signUpLink:
       'https://torbox.app/subscription?referral=9ca21adb-dbcb-4fb0-9195-412a5f3519bc',
     credentials: [

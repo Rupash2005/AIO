@@ -1,6 +1,6 @@
 {
   "name": "aiostreams",
-  "version": "1.14.4",
+  "version": "1.21.1",
   "description": "Stremio addon to combine streams into one addon",
   "main": "dist/server.js",
   "scripts": {
@@ -36,6 +36,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
+    "super-regex": "^1.0.0",
     "undici": "^7.2.3"
   }
 }

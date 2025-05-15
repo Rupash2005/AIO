@@ -21,8 +21,6 @@ function createResponse(message: string, status: number): Response {
   });
 }
 
-const cache = new Cache(1024);
-
 export default {
   async fetch(request, env, ctx): Promise<Response> {
     try {
@@ -116,7 +114,9 @@ export default {
           return createResponse('Encrypted Config Not Supported', 400);
         }
         try {
-          decodedConfig = unminifyConfig(JSON.parse(atob(config)));
+          decodedConfig = unminifyConfig(
+            JSON.parse(Buffer.from(config, 'base64').toString('utf-8'))
+          );
         } catch (error: any) {
           console.error(error);
           return createJsonResponse(
@@ -148,7 +148,6 @@ export default {
           request.headers.get('CF-Connecting-IP') ||
           request.headers.get('X-Client-IP') ||
           undefined;
-        decodedConfig.instanceCache = cache;
 
         const aioStreams = new AIOStreams(decodedConfig);
         const streams = await aioStreams.getStreams(streamRequest);

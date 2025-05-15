@@ -30,7 +30,10 @@ export class StremioJackett extends BaseWrapper {
       url,
       addonId,
       userConfig,
-      indexerTimeout || Settings.DEFAULT_STREMIO_JACKETT_TIMEOUT
+      indexerTimeout || Settings.DEFAULT_STREMIO_JACKETT_TIMEOUT,
+      Settings.DEFAULT_STREMIO_JACKETT_USER_AGENT
+        ? { 'User-Agent': Settings.DEFAULT_STREMIO_JACKETT_USER_AGENT }
+        : undefined
     );
   }
 
@@ -79,11 +82,16 @@ const getStremioJackettConfigString = (
   torrenting?: boolean,
   tmdbApiKey?: string
 ) => {
+  const isCommunityInstance = !(
+    Settings.DEFAULT_STREMIO_JACKETT_JACKETT_URL ||
+    Settings.DEFAULT_STREMIO_JACKETT_JACKETT_API_KEY
+  );
   return Buffer.from(
     JSON.stringify({
       addonHost: Settings.STREMIO_JACKETT_URL,
-      jackettHost: Settings.JACKETT_URL ?? undefined,
-      jackettApiKey: Settings.JACKETT_API_KEY ?? undefined,
+      jackettHost: Settings.DEFAULT_STREMIO_JACKETT_JACKETT_URL || undefined,
+      jackettApiKey:
+        Settings.DEFAULT_STREMIO_JACKETT_JACKETT_API_KEY || undefined,
       service: debridService ?? '',
       debridKey: debridApiKey ?? '',
       maxSize: 0,
@@ -94,13 +102,15 @@ const getStremioJackettConfigString = (
       resultsPerQuality: 100,
       maxResults: 100,
       exclusion: [],
-      tmdbApi: Settings.TMDB_API_KEY ?? tmdbApiKey ?? '',
+      tmdbApi: Settings.DEFAULT_STREMIO_JACKETT_TMDB_API_KEY ?? tmdbApiKey,
       torrenting: !debridService ? true : (torrenting ?? false),
       debrid: debridService ? true : false,
-      jackett: Settings.JACKETT_API_KEY ? true : false,
-      cache: Settings.STREMIO_JACKETT_CACHE_ENABLED,
+      jackett: isCommunityInstance ? undefined : true,
+      cache: isCommunityInstance ? undefined : true,
       metadataProvider:
-        (Settings.TMDB_API_KEY ?? tmdbApiKey) ? 'tmdb' : 'cinemeta',
+        (Settings.DEFAULT_STREMIO_JACKETT_TMDB_API_KEY ?? tmdbApiKey)
+          ? 'tmdb'
+          : 'cinemeta',
     })
   ).toString('base64');
 };

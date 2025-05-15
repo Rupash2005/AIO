@@ -44,7 +44,10 @@ export class Torbox extends BaseWrapper {
       Settings.TORBOX_STREMIO_URL + apiKey + '/',
       addonId,
       userConfig,
-      indexerTimeout || Settings.DEFAULT_TORBOX_TIMEOUT
+      indexerTimeout || Settings.DEFAULT_TORBOX_TIMEOUT,
+      Settings.DEFAULT_TORBOX_USER_AGENT
+        ? { 'User-Agent': Settings.DEFAULT_TORBOX_USER_AGENT }
+        : undefined
     );
   }
 
@@ -77,20 +80,19 @@ export class Torbox extends BaseWrapper {
       cached: stream.is_cached !== undefined ? stream.is_cached : true,
     };
 
-    const parsedStream: ParseResult = this.createParsedResult(
-      parsedFilename,
+    const parsedStream: ParseResult = this.createParsedResult({
+      parsedInfo: parsedFilename,
       stream,
       filename,
       size,
       provider,
       seeders,
-      age,
-      source,
-      undefined,
+      usenetAge: age,
+      indexer: source,
       personal,
       infoHash,
-      message
-    );
+      message,
+    });
 
     return parsedStream;
   }

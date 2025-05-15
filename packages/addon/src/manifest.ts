@@ -23,6 +23,14 @@ const manifest = (config?: Config, configPresent?: boolean) => {
       configurable: true,
       configurationRequired: config || configPresent ? false : true,
     },
+    stremioAddonsConfig:
+      Settings.STREMIO_ADDONS_CONFIG_ISSUER &&
+      Settings.STREMIO_ADDONS_CONFIG_SIGNATURE
+        ? {
+            issuer: Settings.STREMIO_ADDONS_CONFIG_ISSUER,
+            signature: Settings.STREMIO_ADDONS_CONFIG_SIGNATURE,
+          }
+        : undefined,
   };
 };
 

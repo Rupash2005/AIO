@@ -19,7 +19,8 @@ export const PARSE_REGEX = {
     '480p': createRegex('(bd|hd|m)?(480(p|i)?)|sd'),
   },
   qualities: {
-    'BluRay REMUX': createRegex('(blu[ .\\-_]?ray|bd|br|b|uhd)[ .\\-_]?remux'),
+    'BluRay REMUX':
+      /((?<=remux.*)[ .\-_](blu[ .\-_]?ray))|((blu[ .\-_]?ray)[ .\-_](?=.*remux))|((?<![^\s\[(_\-.,])(bd|br|b|uhd)[ .\\-_]?remux(?=\s\)\]_.\-,]|$))/i,
     BluRay: createRegex(
       'blu[ .\\-_]?ray|((bd|br|b)[ .\\-_]?(rip|r)?)(?![ .\\-_]?remux)'
     ),
@@ -131,4 +132,6 @@ export const PARSE_REGEX = {
     Malay: createLanguageRegex('malay'),
     Latino: createLanguageRegex('latino|lat'),
   },
+  releaseGroup:
+    /- ?(?!\d+$|S\d+|\d+x|ep?\d+|[^[]+]$)([^\-. []+[^\-. [)\]\d][^\-. [)\]]*)(?:\[[\w.-]+])?(?=\.\w{2,4}$|$)/i,
 };

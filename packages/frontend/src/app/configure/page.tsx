@@ -40,6 +40,8 @@ import CredentialInput from '@/components/CredentialInput';
 import CreateableSelect from '@/components/CreateableSelect';
 import MultiSelect from '@/components/MutliSelect';
 import InstallWindow from '@/components/InstallWindow';
+import FormatterPreview from '@/components/FormatterPreview';
+import CustomFormatter from '@/components/CustomFormatter';
 
 const version = addonPackage.version;
 
@@ -104,6 +106,7 @@ const defaultEncodes: Encode[] = [
 
 const defaultSortCriteria: SortBy[] = [
   { cached: true, direction: 'desc' },
+  { personal: true, direction: 'desc' },
   { resolution: true },
   { language: true },
   { size: true, direction: 'desc' },
@@ -115,6 +118,7 @@ const defaultSortCriteria: SortBy[] = [
   { quality: false },
   { seeders: false, direction: 'desc' },
   { addon: false },
+  { regexSort: false, direction: 'desc' },
 ];
 
 const defaultResolutions: Resolution[] = [
@@ -174,8 +178,6 @@ export default function Configure() {
   const [minMovieSize, setMinMovieSize] = useState<number | null>(null);
   const [maxEpisodeSize, setMaxEpisodeSize] = useState<number | null>(null);
   const [minEpisodeSize, setMinEpisodeSize] = useState<number | null>(null);
-  const [addonNameInDescription, setAddonNameInDescription] =
-    useState<boolean>(false);
   const [cleanResults, setCleanResults] = useState<boolean>(false);
   const [maxResultsPerResolution, setMaxResultsPerResolution] = useState<
     number | null
@@ -199,6 +201,18 @@ export default function Configure() {
   const [mediaFlowProxiedServices, setMediaFlowProxiedServices] = useState<
     string[] | null
   >(null);
+
+  const [stremThruEnabled, setStremThruEnabled] = useState<boolean>(false);
+  const [stremThruUrl, setStremThruUrl] = useState<string>('');
+  const [stremThruCredential, setStremThruCredential] = useState<string>('');
+  const [stremThruPublicIp, setStremThruPublicIp] = useState<string>('');
+  const [stremThruProxiedAddons, setStremThruProxiedAddons] = useState<
+    string[] | null
+  >(null);
+  const [stremThruProxiedServices, setStremThruProxiedServices] = useState<
+    string[] | null
+  >(null);
+
   const [overrideName, setOverrideName] = useState<string>('');
   const [apiKey, setApiKey] = useState<string>('');
 
@@ -214,6 +228,11 @@ export default function Configure() {
   );
   const [showApiKeyInput, setShowApiKeyInput] = useState<boolean>(false);
   const [manifestUrl, setManifestUrl] = useState<string | null>(null);
+  const [regexFilters, setRegexFilters] = useState<{
+    excludePattern?: string;
+    includePattern?: string;
+  }>({});
+  const [regexSortPatterns, setRegexSortPatterns] = useState<string>('');
 
   useEffect(() => {
     // get config from the server
@@ -254,7 +273,6 @@ export default function Configure() {
       minMovieSize,
       maxEpisodeSize,
       minEpisodeSize,
-      addonNameInDescription,
       cleanResults,
       maxResultsPerResolution,
       strictIncludeFilters:
@@ -267,15 +285,31 @@ export default function Configure() {
           : null,
       formatter: formatter || 'gdrive',
       mediaFlowConfig: {
-        mediaFlowEnabled,
+        mediaFlowEnabled: mediaFlowEnabled && !stremThruEnabled,
         proxyUrl: mediaFlowProxyUrl,
         apiPassword: mediaFlowApiPassword,
         publicIp: mediaFlowPublicIp,
         proxiedAddons: mediaFlowProxiedAddons,
         proxiedServices: mediaFlowProxiedServices,
       },
+      stremThruConfig: {
+        stremThruEnabled: stremThruEnabled && !mediaFlowEnabled,
+        url: stremThruUrl,
+        credential: stremThruCredential,
+        publicIp: stremThruPublicIp,
+        proxiedAddons: stremThruProxiedAddons,
+        proxiedServices: stremThruProxiedServices,
+      },
       addons,
       services,
+      regexFilters:
+        regexFilters.excludePattern || regexFilters.includePattern
+          ? {
+              excludePattern: regexFilters.excludePattern || undefined,
+              includePattern: regexFilters.includePattern || undefined,
+            }
+          : undefined,
+      regexSortPatterns: regexSortPatterns,
     };
     return config;
   };
@@ -283,7 +317,7 @@ export default function Configure() {
   const fetchWithTimeout = async (
     url: string,
     options: RequestInit | undefined,
-    timeoutMs = 5000
+    timeoutMs = 30000
   ) => {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -486,7 +520,9 @@ export default function Configure() {
       if (isValueEncrypted(config) || config.startsWith('B-')) {
         throw new Error('Encrypted Config Not Supported');
       } else {
-        decodedConfig = JSON.parse(atob(decodeURIComponent(config)));
+        decodedConfig = JSON.parse(
+          Buffer.from(decodeURIComponent(config), 'base64').toString('utf-8')
+        );
       }
       return decodedConfig;
     }
@@ -542,9 +578,9 @@ export default function Configure() {
           value: filter,
         })) || []
       );
-      setFormatter(
-        validateValue(decodedConfig.formatter, allowedFormatters) || 'gdrive'
-      );
+      setRegexFilters(decodedConfig.regexFilters || {});
+      setRegexSortPatterns(decodedConfig.regexSortPatterns || '');
+
       setServices(loadValidServices(decodedConfig.services));
       setMaxMovieSize(
         decodedConfig.maxMovieSize || decodedConfig.maxSize || null
@@ -559,7 +595,6 @@ export default function Configure() {
         decodedConfig.minEpisodeSize || decodedConfig.minSize || null
       );
       setAddons(loadValidAddons(decodedConfig.addons));
-      setAddonNameInDescription(decodedConfig.addonNameInDescription || false);
       setCleanResults(decodedConfig.cleanResults || false);
       setMaxResultsPerResolution(decodedConfig.maxResultsPerResolution || null);
       setMediaFlowEnabled(
@@ -574,7 +609,27 @@ export default function Configure() {
       setMediaFlowProxiedServices(
         decodedConfig.mediaFlowConfig?.proxiedServices || null
       );
+      setStremThruEnabled(
+        decodedConfig.stremThruConfig?.stremThruEnabled || false
+      );
+      setStremThruUrl(decodedConfig.stremThruConfig?.url || '');
+      setStremThruCredential(decodedConfig.stremThruConfig?.credential || '');
+      setStremThruPublicIp(decodedConfig.stremThruConfig?.publicIp || '');
       setApiKey(decodedConfig.apiKey || '');
+
+      // set formatter
+      const formatterValue = validateValue(
+        decodedConfig.formatter,
+        allowedFormatters
+      );
+      if (
+        decodedConfig.formatter.startsWith('custom') &&
+        decodedConfig.formatter.length > 7
+      ) {
+        setFormatter(decodedConfig.formatter);
+      } else if (formatterValue) {
+        setFormatter(formatterValue);
+      }
     }
 
     const path = window.location.pathname;
@@ -985,6 +1040,110 @@ export default function Configure() {
           </div>
         </div>
 
+        {showApiKeyInput && (
+          <div className={styles.section}>
+            <div>
+              <h2 style={{ padding: '5px', margin: '0px ' }}>
+                Regex Filtering
+              </h2>
+              <p style={{ margin: '5px 0 12px 5px' }}>
+                Configure regex patterns to filter streams. These filters will
+                be applied in addition to keyword filters.
+              </p>
+            </div>
+            <div style={{ marginBottom: '0px' }}>
+              <div className={styles.section}>
+                <h3 style={{ margin: '2px 0 2px 0' }}>Exclude Pattern</h3>
+                <p style={{ margin: '10px 0 10px 0' }}>
+                  Enter a regex pattern to exclude streams. Streams will be
+                  excluded if their filename OR indexers match this pattern.
+                </p>
+                <input
+                  type="text"
+                  value={regexFilters.excludePattern || ''}
+                  onChange={(e) =>
+                    setRegexFilters({
+                      ...regexFilters,
+                      excludePattern: e.target.value,
+                    })
+                  }
+                  placeholder="Example: \b(0neshot|1XBET)\b"
+                  className={styles.input}
+                />
+                <p className={styles.helpText}>
+                  Example patterns:
+                  <br />
+                  - \b(0neshot|1XBET|24xHD)\b (exclude 0neshot, 1XBET, and 24xHD
+                  releases)
+                  <br />- ^.*Hi10.*$ (exclude Hi10 profile releases)
+                </p>
+              </div>
+              <div className={styles.section} style={{ marginBottom: '0px' }}>
+                <h3 style={{ margin: '2px 0 2px 0' }}>Include Pattern</h3>
+                <p style={{ margin: '10px 0 10px 0' }}>
+                  Enter a regex pattern to include streams. Only streams whose
+                  filename or indexers match this pattern will be included.
+                </p>
+                <input
+                  type="text"
+                  value={regexFilters.includePattern || ''}
+                  onChange={(e) =>
+                    setRegexFilters({
+                      ...regexFilters,
+                      includePattern: e.target.value,
+                    })
+                  }
+                  placeholder="Example: \b(3L|BiZKiT)\b"
+                  className={styles.input}
+                />
+                <p className={styles.helpText}>
+                  Example patterns:
+                  <br />- \b(3L|BiZKiT|BLURANiUM)\b (only include 3L, BiZKiT,
+                  and BLURANiUM releases)
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showApiKeyInput && (
+          <div className={styles.section}>
+            <h2 style={{ padding: '5px' }}>Regex Sort Patterns</h2>
+            <p style={{ padding: '5px' }}>
+              Enter a space separated list of regex patterns, optionally with a
+              name, to sort streams by. Streams will be sorted based on the
+              order of matching patterns. Matching files will come first in
+              descending order, and last in ascending order for each pattern.
+              You can give each regex a name using the following syntax:
+              <br />
+              <br />
+              <code>regexName{`<::>`}regexPattern</code>
+              <br />
+              <br />
+              For example, <code>3L{`<::>`}\b(3L|BiZKiT)\b</code> will sort
+              streams matching the regex <code>\b(3L|BiZKiT)\b</code> first and
+              those streams will have the <code>{`regexMatched`}</code> property
+              with the value <code>3L</code> in the custom formatter.
+            </p>
+            <input
+              type="text"
+              value={regexSortPatterns}
+              onChange={(e) => setRegexSortPatterns(e.target.value)}
+              placeholder="Example: \b(3L|BiZKiT)\b \b(FraMeSToR)\b"
+              style={{
+                width: '97.5%',
+                padding: '5px',
+                marginLeft: '5px',
+              }}
+              className={styles.input}
+            />
+            <p className={styles.helpText}>
+              Example patterns:
+              <br />- \b(3L|BiZKiT|BLURANiUM)\b \b(FraMeSToR)\b (sort
+              3L/BiZKiT/BLURANiUM releases first, then FraMeSToR releases)
+            </p>
+          </div>
+        )}
         <div className={styles.section}>
           <div className={styles.slidersSetting}>
             <div>
@@ -1102,7 +1261,7 @@ export default function Configure() {
             </div>
             <div className={styles.settingInput}>
               <select
-                value={formatter}
+                value={formatter?.startsWith('custom') ? 'custom' : formatter}
                 onChange={(e) => setFormatter(e.target.value)}
               >
                 {formatterOptions.map((formatter) => (
@@ -1113,34 +1272,13 @@ export default function Configure() {
               </select>
             </div>
           </div>
-        </div>
-
-        <div className={styles.section}>
-          <div className={styles.setting}>
-            <div className={styles.settingDescription}>
-              <h2 style={{ padding: '5px' }}>Move Addon Name to Description</h2>
-              <p style={{ padding: '5px' }}>
-                Move the addon name to the description of the stream. This will
-                show <code>AIOStreams</code> as the stream title, but move the
-                name of the addon that the stream is from to the description.
-                This is useful for Vidi users.
-              </p>
-            </div>
-            <div className={styles.checkboxSettingInput}>
-              <input
-                type="checkbox"
-                checked={addonNameInDescription}
-                onChange={(e) => setAddonNameInDescription(e.target.checked)}
-                // move to the right
-                style={{
-                  marginLeft: 'auto',
-                  marginRight: '20px',
-                  width: '25px',
-                  height: '25px',
-                }}
-              />
-            </div>
-          </div>
+          {formatter?.startsWith('custom') && (
+            <CustomFormatter
+              formatter={formatter}
+              setFormatter={setFormatter}
+            />
+          )}
+          <FormatterPreview formatter={formatter || 'gdrive'} />
         </div>
 
         <div className={styles.section}>
@@ -1183,7 +1321,8 @@ export default function Configure() {
             <div className={styles.settingInput}>
               <input
                 type="checkbox"
-                checked={mediaFlowEnabled}
+                checked={mediaFlowEnabled && !stremThruEnabled}
+                disabled={stremThruEnabled}
                 onChange={(e) => {
                   setMediaFlowEnabled(e.target.checked);
                 }}
@@ -1317,6 +1456,155 @@ export default function Configure() {
                         );
                       }}
                       values={mediaFlowProxiedServices || undefined}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div className={styles.section}>
+          <div className={styles.setting}>
+            <div className={styles.settingDescription}>
+              <h2 style={{ padding: '5px' }}>StremThru</h2>
+              <p style={{ padding: '5px' }}>
+                Use StremThru to proxy your streams
+              </p>
+            </div>
+            <div className={styles.settingInput}>
+              <input
+                type="checkbox"
+                checked={stremThruEnabled && !mediaFlowEnabled}
+                disabled={mediaFlowEnabled}
+                onChange={(e) => {
+                  setStremThruEnabled(e.target.checked);
+                }}
+                style={{
+                  width: '25px',
+                  height: '25px',
+                }}
+              />
+            </div>
+          </div>
+          {
+            <div
+              className={`${styles.stremThruConfig} ${stremThruEnabled ? '' : styles.hidden}`}
+            >
+              <div className={styles.stremThruSection}>
+                <div>
+                  <div>
+                    <h3 style={{ padding: '5px' }}>StremThru URL</h3>
+                    <p style={{ padding: '5px' }}>
+                      The URL of the StremThru server
+                    </p>
+                  </div>
+                  <div>
+                    <CredentialInput
+                      credential={stremThruUrl}
+                      setCredential={setStremThruUrl}
+                      inputProps={{
+                        placeholder: 'Enter your StremThru URL',
+                        disabled: !stremThruEnabled,
+                      }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div>
+                    <h3 style={{ padding: '5px' }}>Credential</h3>
+                    <p style={{ padding: '5px' }}>Your StremThru Credential</p>
+                  </div>
+                  <div>
+                    <CredentialInput
+                      credential={stremThruCredential}
+                      setCredential={setStremThruCredential}
+                      inputProps={{
+                        placeholder: 'Enter your StremThru Credential',
+                        disabled: !stremThruEnabled,
+                      }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div>
+                    <h3 style={{ padding: '5px' }}>Public IP (Optional)</h3>
+                    <p style={{ padding: '5px' }}>
+                      Set the publicly exposed IP for StremThru server.
+                    </p>
+                  </div>
+                  <div>
+                    <CredentialInput
+                      credential={stremThruPublicIp}
+                      setCredential={setStremThruPublicIp}
+                      inputProps={{
+                        placeholder: 'Enter your StremThru public IP',
+                        disabled: !stremThruEnabled,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className={styles.stremThruSection}>
+                <div>
+                  <div>
+                    <h3 style={{ padding: '5px' }}>Proxy Addons (Optional)</h3>
+                    <p style={{ padding: '5px' }}>
+                      By default, all streams from every addon are proxied.
+                      Choose specific addons here to proxy only their streams.
+                    </p>
+                  </div>
+                  <div>
+                    <MultiSelect
+                      options={
+                        addons.map((addon) => ({
+                          value: `${addon.id}-${JSON.stringify(addon.options)}`,
+                          label:
+                            addon.options.addonName ||
+                            addon.options.overrideName ||
+                            addon.options.name ||
+                            addon.id.charAt(0).toUpperCase() +
+                              addon.id.slice(1),
+                        })) || []
+                      }
+                      setValues={(selectedAddons) => {
+                        setStremThruProxiedAddons(
+                          selectedAddons.length === 0 ? null : selectedAddons
+                        );
+                      }}
+                      values={stremThruProxiedAddons || undefined}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div>
+                    <h3 style={{ padding: '5px' }}>
+                      Proxy Services (Optional)
+                    </h3>
+                    <p style={{ padding: '5px' }}>
+                      By default, all streams whether they are from a serivce or
+                      not are proxied. Choose which services you want to proxy
+                      through StremThru. Selecting None will also proxy streams
+                      that are not (detected to be) from a service.
+                    </p>
+                  </div>
+                  <div>
+                    <MultiSelect
+                      options={[
+                        { value: 'none', label: 'None' },
+                        ...serviceDetails.map((service) => ({
+                          value: service.id,
+                          label: service.name,
+                        })),
+                      ]}
+                      setValues={(selectedServices) => {
+                        setStremThruProxiedServices(
+                          selectedServices.length === 0
+                            ? null
+                            : selectedServices
+                        );
+                      }}
+                      values={stremThruProxiedServices || undefined}
                     />
                   </div>
                 </div>
