@@ -57,6 +57,9 @@ const getEasynewsPlusPlusConfigString = (
     showQualities: '4k,1080p,720p,480p',
     maxResultsPerQuality: '',
     maxFileSize: '',
+    baseUrl: (
+      Settings.EASYNEWS_PLUS_PLUS_PUBLIC_URL || Settings.EASYNEWS_PLUS_PLUS_URL
+    ).replace(/\/$/, ''),
   };
   return encodeURIComponent(JSON.stringify(options));
 };

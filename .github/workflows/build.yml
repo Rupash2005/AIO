@@ -1,15 +1,6 @@
 name: Build Addon
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'packages/**'
-      - 'package-lock.json'
-      - 'package.json'
-      - 'tsconfig.json'
-      - 'tsconfig.base.json'
   pull_request:
     branches:
       - main

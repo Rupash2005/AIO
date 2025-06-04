@@ -1,0 +1,64 @@
+name: Nightly Builds
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - 'package-lock.json'
+      - 'package.json'
+      - 'tsconfig.json'
+      - 'tsconfig.base.json'
+      - 'Dockerfile'
+
+jobs:
+  release:
+    name: release
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate timestamp tag
+        id: gen_tag
+        run: |
+          TIMESTAMP=$(date '+%Y.%m.%d.%H%M-nightly')
+          echo "tag_name=$TIMESTAMP" >> $GITHUB_OUTPUT
+
+      - name: Create git tag
+        env:
+          TAG_NAME: ${{ steps.gen_tag.outputs.tag_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
+
+      - name: Get commit message
+        id: commit_msg
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "commit_msg<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMIT_MSG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.gen_tag.outputs.tag_name }}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "${{ steps.gen_tag.outputs.tag_name }}" \
+            --notes "${{ steps.commit_msg.outputs.commit_msg }}" \
+            --prerelease
+
+      - name: Trigger Docker Image Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run --repo ${GITHUB_REPOSITORY} deploy-docker.yml -f ref=${{ steps.gen_tag.outputs.tag_name }}

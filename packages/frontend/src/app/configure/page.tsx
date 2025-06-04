@@ -21,7 +21,7 @@ import ServiceInput from '../../components/ServiceInput';
 import AddonsList from '../../components/AddonsList';
 import { Slide, ToastContainer, toast } from 'react-toastify';
 import showToast, { toastOptions } from '@/components/Toasts';
-import addonPackage from '../../../package.json';
+import addonPackage from '../../../../../package.json';
 import { formatSize } from '@aiostreams/formatters';
 import {
   allowedFormatters,

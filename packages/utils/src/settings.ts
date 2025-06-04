@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import path from 'path';
-import p from '../package.json';
+import p from '../../../package.json';
 import {
   cleanEnv,
   str,
@@ -539,6 +539,10 @@ export const Settings = cleanEnv(process.env, {
   EASYNEWS_PLUS_PLUS_URL: url({
     default: 'https://easynews-cloudflare-worker.jqrw92fchz.workers.dev/',
     desc: 'Easynews++ URL',
+  }),
+  EASYNEWS_PLUS_PLUS_PUBLIC_URL: url({
+    default: undefined,
+    desc: 'Easynews++ public URL',
   }),
   DEFAULT_EASYNEWS_PLUS_PLUS_TIMEOUT: num({
     default: undefined,

@@ -3,10 +3,10 @@
 
 <p align="center">
   <a> 
-    <img src="https://img.shields.io/github/check-runs/Viren070/AIOStreams/main?style=for-the-badge" alt="Discord Server">
+    <img src="https://img.shields.io/github/actions/workflow/status/viren070/aiostreams/deploy-docker.yml?style=for-the-badge" alt="Discord Server">
   </a>
   <a>
-    <img src="https://img.shields.io/docker/v/viren070/aiostreams?style=for-the-badge" alt="version">
+    <img src="https://img.shields.io/github/v/release/viren070/aiostreams?style=for-the-badge" alt="version">
   </a>
   <a href="https://github.com/Viren070/AIOStreams/stargazers">
     <img src="https://img.shields.io/github/stars/Viren070/AIOStreams?style=for-the-badge" alt="GitHub Stars">

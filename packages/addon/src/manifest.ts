@@ -1,5 +1,5 @@
 import { Config } from '@aiostreams/types';
-import { version, description } from '../package.json';
+import { version, description } from '../../../package.json';
 import { getTextHash, Settings } from '@aiostreams/utils';
 
 const manifest = (config?: Config, configPresent?: boolean) => {
